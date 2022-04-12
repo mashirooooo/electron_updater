@@ -53,8 +53,7 @@ fn build_root_widget() -> impl Widget<UpdateState> {
         .with_spacer(10.0)
         .with_child(
             ProgressBarWidget::new()
-                .on_added(|_, _, _, _| {
-                })
+                .on_added(|_, _, _, _| {})
                 .lens(UpdateState::progressbar),
         )
         .must_fill_main_axis(true)
