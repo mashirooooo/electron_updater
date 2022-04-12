@@ -1,0 +1,13 @@
+[source.crates-io]
+replace-with = 'rsproxy'
+
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+
+# static 推荐在项目中配置
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# static 推荐在项目中配置
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
