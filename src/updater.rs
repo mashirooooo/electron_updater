@@ -24,6 +24,7 @@ fn copy_file<P: AsRef<Path>>(
     update_temp_path: P,
     #[cfg(feature = "druid")] ui_callback: &(dyn Fn(f64)),
 ) {
+    #[cfg(feature = "druid")]
     let mut hand_file_num = 0.0;
     #[cfg(feature = "druid")]
     let total_file = (config.added.len() + config.changed.len()) as f64;
