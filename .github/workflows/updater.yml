@@ -145,7 +145,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --no-default-features
+          args: --release --no-default-features --target=${{ matrix.target }}
 
       - name: Build archive no features
         shell: bash
@@ -153,11 +153,11 @@ jobs:
           staging="updater_cli_${{ matrix.build }}_${{ github.event.release.tag_name }}"
           mkdir -p "$staging"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp target/release/updater.exe "$staging/"
+            cp target/${{matrix.target}}/updater.exe "$staging/"
             7z a "$staging.zip" "$staging"
             echo "ASSET=$staging.zip" >> $GITHUB_ENV
           else
-            cp target/release/updater "$staging/"
+            cp target/${{matrix.target}}/updater "$staging/"
             tar czf "$staging.tar.gz" "$staging"
             echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
           fi
