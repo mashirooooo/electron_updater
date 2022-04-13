@@ -98,7 +98,7 @@ jobs:
       - name: install rustup
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup-init.sh
-          sh rustup-init.sh -y --default-toolchain none
+          sh rustup-init.sh -y --default-toolchain ${{ matrix.rust }}
           rustup target add ${{ matrix.target }}
         
       - name: install libx11-dev
