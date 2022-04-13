@@ -73,12 +73,12 @@ jobs:
         include:
           - build: linux-x86_64
             os: ubuntu-latest
-            rust: stable-x86_64-unknown-linux-gnu
-            target: x86_64-unknown-linux-gnu
+            rust: stable-x86_64-unknown-linux-musl
+            target: x86_64-unknown-linux-musl
           - build: linux-i686
             os: ubuntu-latest
-            rust: stable-i686-unknown-linux-gnu
-            target: i686-unknown-linux-gnu
+            rust: stable-i686-unknown-linux-musl
+            target: i686-unknown-linux-musl
           - build: macos-x86_64
             os: macos-latest
             rust: stable-x86_64-apple-darwin
@@ -101,10 +101,10 @@ jobs:
           sh rustup-init.sh -y --default-toolchain ${{ matrix.rust }}
           rustup target add ${{ matrix.target }}
         
-      - name: install libx11-dev
+      - name: install dev
         run: |
           sudo apt update
-          sudo apt install libx11-dev libpango1.0-dev libxkbcommon-dev libxkbcommon-x11-dev libgtk-3-dev
+          sudo apt install libx11-dev libpango1.0-dev libxkbcommon-dev libxkbcommon-x11-dev libgtk-3-dev gcc-multilib
         if: contains(matrix.os, 'ubuntu')
       
       # Run build
