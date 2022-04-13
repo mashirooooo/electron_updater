@@ -69,16 +69,12 @@ jobs:
     name: build-release
     strategy:
       matrix:
-        build: [linux-x86_64,macos-x86_64,windows-x86_64-msvc,linux-i686,windows-i686-msvc]
+        build: [linux-x86_64,macos-x86_64,windows-x86_64-msvc,windows-i686-msvc]
         include:
           - build: linux-x86_64
             os: ubuntu-latest
             rust: stable-x86_64-unknown-linux-gnu
             target: x86_64-unknown-linux-gnu
-          - build: linux-i686
-            os: ubuntu-latest
-            rust: stable-i686-unknown-linux-gnu
-            target: i686-unknown-linux-gnu
           - build: macos-x86_64
             os: macos-latest
             rust: stable-x86_64-apple-darwin
