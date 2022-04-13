@@ -73,11 +73,11 @@ jobs:
         include:
           - build: linux-x86_64
             os: ubuntu-latest
-            rust: stable-x86_64-unknown-linux-musl
+            rust: stable-x86_64-unknown-linux-gnu
             target: x86_64-unknown-linux-musl
           - build: linux-i686
             os: ubuntu-latest
-            rust: stable-i686-unknown-linux-musl
+            rust: stable-i686-unknown-linux-gnu
             target: i686-unknown-linux-musl
           - build: macos-x86_64
             os: macos-latest
