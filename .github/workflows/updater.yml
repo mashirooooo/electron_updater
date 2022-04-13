@@ -73,7 +73,7 @@ jobs:
         include:
           - build: linux-x86_64
             os: ubuntu-latest
-            rust: stable-x86_64-unknown-linux-gnu,
+            rust: stable-x86_64-unknown-linux-gnu
             target: x86_64-unknown-linux-gnu
           - build: linux-i686
             os: ubuntu-latest
