@@ -1,0 +1,42 @@
+# 为aarch target 构建cli应用
+name: updater
+on:
+  release:
+    types: [created]
+jobs:
+  build-release:
+    runs-on: macos-latest
+    name: build-release-macos-aarch
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install rustup
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup-init.sh
+          sh rustup-init.sh -y 
+          rustup target add aarch64-apple-darwin
+      - name: build-release
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --no-default-features --target=aarch64-apple-darwin
+        
+      - name: Build archive no features
+        shell: bash
+        run: |
+          staging="updater_cli_aarch64-apple-darwin_${{ github.event.release.tag_name }}"
+          mkdir -p "$staging"
+          cp target/aarch64-apple-darwin/release/updater "$staging/"
+          tar czf "$staging.tar.gz" "$staging"
+          echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
+
+      - name: Upload Release Asset no features
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSET }}
+          asset_content_type: application/octet-stream
