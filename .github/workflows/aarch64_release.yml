@@ -23,11 +23,7 @@ jobs:
       - name: Build archive no features
         shell: bash
         run: |
-          staging="updater_cli_aarch64-apple-darwin_${{ github.event.release.tag_name }}"
-          mkdir -p "$staging"
-          cp target/aarch64-apple-darwin/release/updater "$staging/"
-          tar czf "$staging.tar.gz" "$staging"
-          echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
+          echo "ASSET=target/aarch64-apple-darwin/release/updater" >> $GITHUB_ENV
 
       - name: Upload Release Asset no features
         if: github.event_name == 'release'
@@ -37,5 +33,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ env.ASSET }}
-          asset_name: ${{ env.ASSET }}
+          asset_name: updater_macos_arm64
           asset_content_type: application/octet-stream
