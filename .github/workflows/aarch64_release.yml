@@ -1,5 +1,4 @@
-# 为aarch target 构建cli应用
-name: updater
+name: updater-aarch64-release
 on:
   release:
     types: [created]

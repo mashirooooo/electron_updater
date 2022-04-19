@@ -1,69 +1,9 @@
-name: updater
+name: updater-release
 on:
-  push:
   release:
     types: [created]
 
 jobs:
-  rustfmt:
-    runs-on: ubuntu-latest
-    name: cargo fmt
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: rustfmt
-          override: true
-
-      - name: cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-  
-  test-stable:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macOS-latest, windows-2019, ubuntu-latest]
-    name: cargo clippy+test
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: install libx11-dev
-        run: |
-          sudo apt update
-          sudo apt install libx11-dev libpango1.0-dev libxkbcommon-dev libxkbcommon-x11-dev libgtk-3-dev
-        if: contains(matrix.os, 'ubuntu')
-
-      - name: install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: clippy
-          profile: minimal
-          override: true
-
-      - name: restore cache
-        uses: Swatinem/rust-cache@v1
-
-      # Clippy packages in deeper-to-higher dependency order
-      - name: cargo clippy druid features
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args:  --all-targets  -- -D warnings
-
-      - name: cargo clippy no-druid features
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets --no-default-features  -- -D warnings
-
   build-release:
     name: build-release
     strategy:
@@ -96,7 +36,7 @@ jobs:
           sh rustup-init.sh -y --default-toolchain ${{ matrix.rust }}
           rustup target add ${{ matrix.target }}
         
-      - name: install dev
+      - name: install dependencies
         run: |
           sudo apt update
           sudo apt install libx11-dev libpango1.0-dev libxkbcommon-dev libxkbcommon-x11-dev libgtk-3-dev gcc-multilib
