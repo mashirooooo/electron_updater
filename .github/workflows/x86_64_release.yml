@@ -11,19 +11,23 @@ jobs:
         build: [linux-x86_64,macos-x86_64,windows-x86_64-msvc,windows-i686-msvc]
         include:
           - build: linux-x86_64
-            os: ubuntu
+            os: ubuntu-latest
+            osname: ubuntu
             rust: stable-x86_64-unknown-linux-gnu
             target: x86_64-unknown-linux-gnu
           - build: macos-x86_64
-            os: macos
+            os: macos-latest
+            osname: macos
             rust: stable-x86_64-apple-darwin
             target: x86_64-apple-darwin
           - build: windows-x86_64-msvc
-            os: windows
+            os: windows-latest
+            osname: win
             rust: stable-x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
           - build: windows-i686-msvc
-            os: windows
+            os: windows-latest
+            osname: win
             rust: stable-i686-pc-windows-msvc
             target: i686-pc-windows-msvc
 
@@ -52,7 +56,7 @@ jobs:
       - name: Build archive druid features
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "windows" ]; then
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
             echo "ASSET=target/${{matrix.target}}/release/updater.exe" >> $GITHUB_ENV
             if [ "${{ matrix.target }}" = "i686-pc-windows-msvc" ]; then
               echo "ASSETNAME=updater_win_ia32.exe" >> $GITHUB_ENV
@@ -61,7 +65,7 @@ jobs:
             fi
           else
             echo "ASSET=target/${{matrix.target}}/release/updater" >> $GITHUB_ENV
-            echo "ASSETNAME=updater_${{matrix.os}}_x64" >> $GITHUB_ENV
+            echo "ASSETNAME=updater_${{matrix.osname}}_x64" >> $GITHUB_ENV
           fi
 
       - name: Upload Release Asset druid features
@@ -85,7 +89,7 @@ jobs:
       - name: Build archive no features
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "windows" ]; then
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
             echo "ASSETCLI=target/${{matrix.target}}/release/updater.exe" >> $GITHUB_ENV
             if [ "${{ matrix.target }}" = "i686-pc-windows-msvc" ]; then
               echo "ASSETCLINAME=updater_cli_win_ia32.exe" >> $GITHUB_ENV
@@ -94,7 +98,7 @@ jobs:
             fi
           else
             echo "ASSETCLI=target/${{matrix.target}}/release/updater" >> $GITHUB_ENV
-            echo "ASSETCLINAME=updater_cli_${{matrix.os}}_x64" >> $GITHUB_ENV
+            echo "ASSETCLINAME=updater_cli_${{matrix.osname}}_x64" >> $GITHUB_ENV
           fi
 
       - name: Upload Release AssetCLI no features
