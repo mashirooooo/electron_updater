@@ -1,5 +1,5 @@
 use std::path::Path;
-use sysinfo::{ProcessExt, Signal, SystemExt};
+use sysinfo::{ProcessExt, SystemExt};
 
 /// 结束electron的进程
 ///
@@ -17,9 +17,7 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
     sys.processes()
         .iter()
         .all(|(_pid, process)| match process.exe() {
-            v if v.starts_with(path.as_ref()) && v != current_exe_path => {
-                process.kill(Signal::Kill)
-            }
+            v if v.starts_with(path.as_ref()) && v != current_exe_path => process.kill(),
             _ => true,
         })
 }

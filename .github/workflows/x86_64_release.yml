@@ -39,13 +39,11 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup-init.sh
           sh rustup-init.sh -y --default-toolchain ${{ matrix.rust }}
           rustup target add ${{ matrix.target }}
-        
       - name: install dependencies
         run: |
           sudo apt update
           sudo apt install libx11-dev libpango1.0-dev libxkbcommon-dev libxkbcommon-x11-dev libgtk-3-dev gcc-multilib
         if: contains(matrix.os, 'ubuntu')
-      
       # Run build
       - name: Build release druid features
         uses: actions-rs/cargo@v1
@@ -111,4 +109,68 @@ jobs:
           asset_path: ${{ env.ASSETCLI }}
           asset_name: ${{ env.ASSETCLINAME }}
           asset_content_type: application/octet-stream
+      # Run build
+      - name: Build release druid and debug features
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --features debug --target=${{ matrix.target }}
 
+      - name: Build archive druid and debug features
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            echo "ASSET=target/${{matrix.target}}/release/updater.exe" >> $GITHUB_ENV
+            if [ "${{ matrix.target }}" = "i686-pc-windows-msvc" ]; then
+              echo "ASSETNAME=debug_updater_win_ia32.exe" >> $GITHUB_ENV
+            else
+              echo "ASSETNAME=debug_updater_win_x64.exe" >> $GITHUB_ENV
+            fi
+          else
+            echo "ASSET=target/${{matrix.target}}/release/updater" >> $GITHUB_ENV
+            echo "ASSETNAME=debug_updater_${{matrix.osname}}_x64" >> $GITHUB_ENV
+          fi
+
+      - name: Upload Release Asset druid and debug features
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSETNAME }}
+          asset_content_type: application/octet-stream
+
+      # Run build
+      - name: Build release debug features
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release  --no-default-features --features debug --target=${{ matrix.target }}
+
+      - name: Build archive debug features
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            echo "ASSETCLI=target/${{matrix.target}}/release/updater.exe" >> $GITHUB_ENV
+            if [ "${{ matrix.target }}" = "i686-pc-windows-msvc" ]; then
+              echo "ASSETCLINAME=debug_updater_cli_win_ia32.exe" >> $GITHUB_ENV
+            else
+              echo "ASSETCLINAME=debug_updater_cli_win_x64.exe" >> $GITHUB_ENV
+            fi
+          else
+            echo "ASSETCLI=target/${{matrix.target}}/release/updater" >> $GITHUB_ENV
+            echo "ASSETCLINAME=debug_updater_cli_${{matrix.osname}}_x64" >> $GITHUB_ENV
+          fi
+
+      - name: Upload Release AssetCLI debug features
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.ASSETCLI }}
+          asset_name: ${{ env.ASSETCLINAME }}
+          asset_content_type: application/octet-stream

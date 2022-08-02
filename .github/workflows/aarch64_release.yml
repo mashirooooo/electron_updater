@@ -19,7 +19,6 @@ jobs:
         with:
           command: build
           args: --release --no-default-features --target=aarch64-apple-darwin
-        
       - name: Build archive no features
         shell: bash
         run: |
@@ -34,4 +33,25 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ env.ASSET }}
           asset_name: updater_macos_arm64
+          asset_content_type: application/octet-stream
+
+      - name: build-release-debug
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --no-default-features --features debug --target=aarch64-apple-darwin
+      - name: Build archive debug features
+        shell: bash
+        run: |
+          echo "ASSET=target/aarch64-apple-darwin/release/updater" >> $GITHUB_ENV
+
+      - name: Upload Release Asset debug features
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: debug_updater_macos_arm64
           asset_content_type: application/octet-stream
