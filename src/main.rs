@@ -32,7 +32,7 @@ fn main() {
                 std::process::exit(0);
             };
             #[cfg(not(feature = "druid"))]
-            updater::updater::update(&quit_app_fn);
+            updater::task::run_task(&quit_app_fn);
         }
     } else if cfg!(target_os = "windows") {
         #[cfg(feature = "druid")]
@@ -42,7 +42,7 @@ fn main() {
             std::process::exit(0);
         };
         #[cfg(not(feature = "druid"))]
-        updater::updater::update(&quit_app_fn);
+        updater::task::run_task(&quit_app_fn);
     } else {
         println!("Unsupported OS");
     }

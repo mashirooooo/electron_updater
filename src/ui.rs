@@ -45,7 +45,7 @@ fn update(event_sink: druid::ExtEventSink) {
         })
     };
     // 更新
-    crate::updater::update(&quit_app_fn, &ui_callback);
+    crate::task::run_task(&quit_app_fn, &ui_callback);
 }
 
 fn build_root_widget() -> impl Widget<UpdateState> {
