@@ -1,11 +1,11 @@
-use std::{path::Path, fs::create_dir};
+use std::{fs::create_dir, path::Path};
 
 use super::Logtrait;
 use log::{debug, error, info, warn};
 pub struct Log {}
 impl Logtrait for Log {
     fn setup_logging() {
-        if !Path::new("log").exists()  {
+        if !Path::new("log").exists() {
             create_dir("log").unwrap()
         };
         let base_config = fern::Dispatch::new().level(log::LevelFilter::Debug);
