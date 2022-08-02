@@ -352,7 +352,7 @@ pub fn run_task(quit_app_fn: impl Fn(), #[cfg(feature = "druid")] ui_callback: i
                 false,
                 config,
                 running_config_path,
-                ui_callback,
+                #[cfg(feature = "druid")] ui_callback,
             );
         }
         _ => {
@@ -392,7 +392,7 @@ pub fn run_task(quit_app_fn: impl Fn(), #[cfg(feature = "druid")] ui_callback: i
                             true,
                             config,
                             running_config_path,
-                            ui_callback,
+                            #[cfg(feature = "druid")] ui_callback,
                         );
                     }
                     Ok(config) if config.status == RunningState::UpdateButNotCheck => {
@@ -404,7 +404,7 @@ pub fn run_task(quit_app_fn: impl Fn(), #[cfg(feature = "druid")] ui_callback: i
                             false,
                             config,
                             running_config_path,
-                            ui_callback,
+                            #[cfg(feature = "druid")] ui_callback,
                         );
                     }
                     Ok(_) => {
