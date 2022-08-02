@@ -28,13 +28,13 @@ fn copy_file<P: AsRef<Path>>(
     #[cfg(feature = "druid")] ui_callback: &(dyn Fn(f64)),
 ) {
     let mut hand_file_num = 0.0;
-    #[cfg(feature = "druid")]
     let total_file = (config.added.len() + config.changed.len()) as f64;
     Log::info("总共需要迁移得文件为");
     Log::info(total_file.to_string().as_str());
     // 结束进程后迁移文件
     for item in config.added.iter().chain(config.changed.iter()) {
         hand_file_num += 1.0;
+        Log::info(format!(" 当前迁移第{}个文件", hand_file_num as u32).as_str());
         let file_path = path.as_ref().join(&item.filePath);
         Log::info("迁移的目标文件:");
         Log::info(file_path.to_str().unwrap());
