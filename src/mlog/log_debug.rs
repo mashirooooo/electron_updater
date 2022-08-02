@@ -1,8 +1,13 @@
+use std::{path::Path, fs::create_dir};
+
 use super::Logtrait;
 use log::{debug, error, info, warn};
 pub struct Log {}
 impl Logtrait for Log {
     fn setup_logging() {
+        if !Path::new("log").exists()  {
+            create_dir("log").unwrap()
+        };
         let base_config = fern::Dispatch::new().level(log::LevelFilter::Debug);
         let file_config = fern::Dispatch::new()
             .format(|out, message, record| {
@@ -14,7 +19,7 @@ impl Logtrait for Log {
                     message
                 ))
             })
-            .chain(fern::DateBased::new("log.", "%Y-%m-%d"));
+            .chain(fern::DateBased::new("log/log.", "%Y-%m-%d"));
         base_config.chain(file_config).apply().unwrap();
     }
     fn info(info: &str) {
