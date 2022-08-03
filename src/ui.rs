@@ -39,7 +39,7 @@ pub fn start_ui() {
 }
 // 更新程序及显示ui
 fn update(event_sink: druid::ExtEventSink) {
-    std::thread::sleep(std::time::Duration::from_secs(1));
+    std::thread::sleep(std::time::Duration::from_millis(10));
     let arc_event_sink = Arc::new(event_sink);
     let quit_app_fn = || {
         let event_sink = arc_event_sink.clone();
