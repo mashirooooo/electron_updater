@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["druid"]
+default = ["druid", "debug"]
 debug = ["fern","log", "chrono"]
 
 
@@ -15,7 +15,7 @@ serde_json = "1.0.66"
 serde = "1.0.127"
 serde_derive = "1.0.127"
 sysinfo = "0.25.1"
-druid = { git = "https://github.com/linebender/druid.git", optional = true}
+druid = {  git = "https://github.com/linebender/druid.git", optional = true}
 fern = { version = "0.6.1", features = ["date-based", "colored"], optional = true }
 log = { version = "0.4.17", optional = true}
 chrono = { version = "*", optional = true}

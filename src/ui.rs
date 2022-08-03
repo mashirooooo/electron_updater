@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use druid::debug_state::DebugState;
 use druid::widget::prelude::*;
 use druid::widget::Flex;
@@ -6,6 +8,9 @@ use druid::{
     theme, AppLauncher, Color, Data, Lens, LinearGradient, Point, Rect, UnitPoint, WidgetExt,
     WindowDesc,
 };
+
+use crate::mlog::Log;
+use crate::mlog::Logtrait;
 #[derive(Clone, Data, Lens, Default)]
 struct UpdateState {
     progressbar: f64,
@@ -34,12 +39,20 @@ pub fn start_ui() {
 }
 // 更新程序及显示ui
 fn update(event_sink: druid::ExtEventSink) {
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    let arc_event_sink = Arc::new(event_sink);
     let quit_app_fn = || {
-        event_sink.add_idle_callback(move |_: &mut UpdateState| {
-            Application::global().quit();
-        })
+        let event_sink = arc_event_sink.clone();
+        Log::info("退出");
+        std::thread::spawn(move || {
+            event_sink.add_idle_callback(move |_: &mut UpdateState| {
+                Log::info("ui退出");
+                Application::global().quit();
+            })
+        });
     };
     let ui_callback = |process: f64| {
+        let event_sink = arc_event_sink.clone();
         event_sink.add_idle_callback(move |state: &mut UpdateState| {
             state.progressbar = process;
         })

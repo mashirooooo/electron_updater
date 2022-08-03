@@ -166,7 +166,7 @@ fn flush_config_file(running_config_file: &mut fs::File, running_config: &Runnin
 
 // 更新
 fn update(
-    quit_app_fn: impl Fn(),
+    quit_app_fn: impl FnOnce(),
     exe_path_buf: PathBuf,
     skip_check: bool,
     mut running_config: RunningConfig,
@@ -328,7 +328,8 @@ fn callback(running_config_file: &mut fs::File, running_config: &mut RunningConf
 }
 
 /// 执行的程序
-pub fn run_task(quit_app_fn: impl Fn(), #[cfg(feature = "druid")] ui_callback: impl Fn(f64)) {
+pub fn run_task(quit_app_fn: impl FnOnce(), #[cfg(feature = "druid")] ui_callback: impl Fn(f64)) {
+    Log::setup_logging();
     Log::info("程序开始");
     // 当前执行exe的 没传过来直接结束进程
     std::thread::sleep(std::time::Duration::from_millis(100));
