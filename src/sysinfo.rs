@@ -37,11 +37,10 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
         _ => (),
     }
     std::thread::sleep(std::time::Duration::from_millis(50));
-    let current_exe_path = std::env::current_exe().unwrap();
     sys.processes()
         .iter()
         .for_each(|(_pid, process)| match process.exe() {
-            v if v.starts_with(path.as_ref()) && v != current_exe_path => {
+            v if v == path.as_ref() => {
                 Log::info(format!("再次尝试结束进程 {v:?} {process:#?}").as_str());
                 process.kill();
             }
@@ -51,7 +50,7 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
     sys.refresh_all();
     sys.processes().iter().any(|(_pid, process)| {
         let v = process.exe();
-        let r = v.starts_with(path.as_ref()) && v != current_exe_path;
+        let r = v == path.as_ref();
         if r {
             Log::error(format!("存在未退出的electron进程: {process:#?}").as_str());
             panic!("存在未退出的electron进程{:?}", process.exe());

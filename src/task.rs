@@ -14,6 +14,9 @@ use crate::{
     mlog::{Log, Logtrait},
     sysinfo::end_electron_main,
 };
+// 自我更新
+static mut NEED_UPDATE_MYSELF: bool = false;
+static mut UPDATE_MYSELF_NOW: bool = false;
 
 // todo 出错后版本后退问题， 中断继续问题
 #[allow(non_snake_case)]
@@ -63,6 +66,7 @@ fn check_permission<P: AsRef<Path>>(
     }
     // 创建文件夹
     fs::create_dir_all(&update_temp_path_old_p).unwrap();
+    let current_exe_path = std::env::current_exe().unwrap();
     running_config.file_path = HashMap::new();
     let mut move_target = Vec::new();
     for (index, item) in config.added.iter().chain(config.changed.iter()).enumerate() {
@@ -80,19 +84,38 @@ fn check_permission<P: AsRef<Path>>(
                 false
                 // 创建父文件夹失败处理
             } else if file_path.exists() {
-                match fs::rename(&file_path, &to_path) {
-                    Ok(_) => {
-                        running_config
-                            .file_path
-                            .insert(index, file_path.to_str().unwrap().to_owned());
-                        move_target.push((file_path, to_path));
-                        true
+                // 暂时跳过本程序
+                if current_exe_path == file_path {
+                    unsafe {
+                        NEED_UPDATE_MYSELF = true;
                     }
-                    Err(e) => {
-                        Log::error("rename文件失败");
-                        Log::error(file_path.to_str().unwrap());
-                        Log::error(e.to_string().as_str());
-                        false
+                    match fs::copy(&file_path, &to_path) {
+                        Ok(_) => {
+                            Log::info("本程序需要更新,复制成功");
+                            true
+                        }
+                        Err(e) => {
+                            Log::error("本程序需要更新,但是复制失败");
+                            Log::error(file_path.to_str().unwrap());
+                            Log::error(e.to_string().as_str());
+                            false
+                        }
+                    }
+                } else {
+                    match fs::rename(&file_path, &to_path) {
+                        Ok(_) => {
+                            running_config
+                                .file_path
+                                .insert(index, file_path.to_str().unwrap().to_owned());
+                            move_target.push((file_path, to_path));
+                            true
+                        }
+                        Err(e) => {
+                            Log::error("rename文件失败");
+                            Log::error(file_path.to_str().unwrap());
+                            Log::error(e.to_string().as_str());
+                            false
+                        }
                     }
                 }
             } else {
@@ -124,6 +147,7 @@ fn copy_file<P: AsRef<Path>>(
     let total_file = (config.added.len() + config.changed.len()) as f64;
     Log::info("总共需要迁移得文件为");
     Log::info(total_file.to_string().as_str());
+    let current_exe_path = std::env::current_exe().unwrap();
     // 结束进程后迁移文件
     for item in config.added.iter().chain(config.changed.iter()) {
         hand_file_num += 1.0;
@@ -140,6 +164,19 @@ fn copy_file<P: AsRef<Path>>(
 
         // ui绘制时间
         thread::sleep(Duration::from_millis(10));
+        // 跳过本次复制
+        if unsafe { NEED_UPDATE_MYSELF } && file_path == current_exe_path {
+            std::thread::spawn(move || {
+                loop {
+                    if unsafe { UPDATE_MYSELF_NOW } {
+                        let _ = fs::rename(from_path, file_path);
+                        // 迁移程序
+                        break;
+                    }
+                }
+            });
+            continue;
+        }
 
         if fs::copy(from_path, &file_path).is_err() {
             Log::error("复制源文件到对应路径错误");
@@ -300,6 +337,10 @@ fn update(
             .spawn()
             .unwrap();
         Log::info("退出更新程序");
+        unsafe {
+            UPDATE_MYSELF_NOW = true;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(500));
         // 退出更新程序
         quit_app_fn();
     }
