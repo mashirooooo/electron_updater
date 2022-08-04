@@ -13,10 +13,12 @@ use crate::mlog::{Log, Logtrait};
 ///
 /// ```
 pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
-    Log::info("尝试结束进程");
+    Log::info("尝试结束进程2");
     let mut sys = sysinfo::System::new_all();
     match env::var("exe_pid") {
         Ok(pid) if pid.parse::<usize>().is_ok() => {
+            Log::info(format!("pid进程: {pid:#?}").as_str());
+
             // []
             #[cfg(any(
                 target_os = "freebsd",
@@ -29,7 +31,6 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
 
             #[cfg(target_os = "windows")]
             let pid = pid.parse::<usize>().unwrap();
-
             if let Some(process) = sys.process(Pid::from(pid)) {
                 process.kill();
             }

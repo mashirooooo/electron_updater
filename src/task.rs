@@ -84,23 +84,12 @@ fn check_permission<P: AsRef<Path>>(
                 false
                 // 创建父文件夹失败处理
             } else if file_path.exists() {
-                // 暂时跳过本程序
+                // 暂时跳过本程序防止更新中断出错，留到最后更新
                 if current_exe_path == file_path {
                     unsafe {
                         NEED_UPDATE_MYSELF = true;
                     }
-                    match fs::copy(&file_path, &to_path) {
-                        Ok(_) => {
-                            Log::info("本程序需要更新,复制成功");
-                            true
-                        }
-                        Err(e) => {
-                            Log::error("本程序需要更新,但是复制失败");
-                            Log::error(file_path.to_str().unwrap());
-                            Log::error(e.to_string().as_str());
-                            false
-                        }
-                    }
+                    true
                 } else {
                     match fs::rename(&file_path, &to_path) {
                         Ok(_) => {
@@ -168,8 +157,17 @@ fn copy_file<P: AsRef<Path>>(
         if unsafe { NEED_UPDATE_MYSELF } && file_path == current_exe_path {
             std::thread::spawn(move || {
                 loop {
-                    if unsafe { UPDATE_MYSELF_NOW } {
-                        let _ = fs::rename(from_path, file_path);
+                    if unsafe {
+                        Log::info(&format!("check UPDATE_MYSELF_NOW {UPDATE_MYSELF_NOW}"));
+                        UPDATE_MYSELF_NOW
+                    } {
+                        let r = fs::rename(
+                            &file_path,
+                            &from_path.parent().unwrap().join("updater_old"),
+                        );
+                        Log::info(format!("delete {r:#?}").as_str());
+                        let r = fs::rename(from_path, file_path);
+                        Log::info(format!("rename {r:#?}").as_str());
                         // 迁移程序
                         break;
                     }
@@ -323,6 +321,11 @@ fn update(
         flush_config_file(&mut running_config_file, &running_config);
         Log::info("迁移文件结束，更新完成");
         Log::info("清理更新文件");
+        unsafe {
+            UPDATE_MYSELF_NOW = true;
+            Log::info(&format!("set UPDATE_MYSELF_NOW {UPDATE_MYSELF_NOW}"));
+        }
+        std::thread::sleep(std::time::Duration::from_millis(500));
         if let Err(e) = fs::remove_dir_all(update_temp_path) {
             Log::error("清理更新文件出错：");
             Log::error(e.to_string().as_str());
@@ -335,10 +338,6 @@ fn update(
             .spawn()
             .unwrap();
         Log::info("退出更新程序");
-        unsafe {
-            UPDATE_MYSELF_NOW = true;
-        }
-        std::thread::sleep(std::time::Duration::from_millis(500));
         // 退出更新程序
         quit_app_fn();
     }
