@@ -1,5 +1,5 @@
-use std::{path::Path, env};
-use sysinfo::{ProcessExt, SystemExt, Process, Pid};
+use std::{env, path::Path};
+use sysinfo::{Pid, ProcessExt, SystemExt};
 
 use crate::mlog::{Log, Logtrait};
 
@@ -20,7 +20,7 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
             if let Some(process) = sys.process(Pid::from(pid.parse::<usize>().unwrap())) {
                 process.kill();
             }
-        },
+        }
         _ => (),
     }
     std::thread::sleep(std::time::Duration::from_millis(50));
