@@ -17,7 +17,19 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
     let mut sys = sysinfo::System::new_all();
     match env::var("exe_pid") {
         Ok(pid) if pid.parse::<usize>().is_ok() => {
+            // []
+            #[cfg(any(
+                target_os = "freebsd",
+                target_os = "linux",
+                target_os = "android",
+                target_os = "macos",
+                target_os = "ios",
+            ))]
+            let pid = pid.parse::<i32>().unwrap();
+
+            #[cfg(target_os = "windows")]
             let pid = pid.parse::<usize>().unwrap();
+
             if let Some(process) = sys.process(Pid::from(pid)) {
                 process.kill();
             }
