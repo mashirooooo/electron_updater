@@ -1,4 +1,4 @@
-use std::sync::Arc;
+// use std::sync::Arc;
 
 use druid::debug_state::DebugState;
 use druid::widget::prelude::*;
@@ -39,20 +39,19 @@ pub fn start_ui() {
 }
 // 更新程序及显示ui
 fn update(event_sink: druid::ExtEventSink) {
-    std::thread::sleep(std::time::Duration::from_millis(10));
-    let arc_event_sink = Arc::new(event_sink);
+    // let arc_event_sink = Arc::new(event_sink);
     let quit_app_fn = || {
-        let event_sink = arc_event_sink.clone();
+        // let event_sink = arc_event_sink.clone();
         Log::info("退出");
-        std::thread::spawn(move || {
-            event_sink.add_idle_callback(move |_: &mut UpdateState| {
-                Log::info("ui退出");
-                Application::global().quit();
-            })
-        });
+        // std::thread::spawn(move || {
+        event_sink.add_idle_callback(move |_: &mut UpdateState| {
+            Log::info("ui退出");
+            Application::global().quit();
+        })
+        // });
     };
     let ui_callback = |process: f64| {
-        let event_sink = arc_event_sink.clone();
+        // let event_sink = arc_event_sink.clone();
         event_sink.add_idle_callback(move |state: &mut UpdateState| {
             state.progressbar = process;
         })

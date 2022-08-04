@@ -1,5 +1,5 @@
-use std::path::Path;
-use sysinfo::{ProcessExt, SystemExt};
+use std::{path::Path, env};
+use sysinfo::{ProcessExt, SystemExt, Process, Pid};
 
 use crate::mlog::{Log, Logtrait};
 
@@ -13,27 +13,23 @@ use crate::mlog::{Log, Logtrait};
 ///
 /// ```
 pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
+    Log::info("尝试结束进程");
     let mut sys = sysinfo::System::new_all();
-    let current_exe_path = std::env::current_exe().unwrap();
-    //注意 如果有其他进程的执行exe的路径是直接kill掉处理
-    sys.processes().iter().for_each(|(_pid, process)| {
-        match process.exe() {
-            v if v.starts_with(path.as_ref())
-                && v != current_exe_path
-                && process.cmd().iter().any(|x| x == "/prefetch:1") =>
-            {
-                // Log::info(format!("{process:#?}").as_str());
+    match env::var("exe_pid") {
+        Ok(pid) if pid.parse::<usize>().is_ok() => {
+            if let Some(process) = sys.process(Pid::from(pid.parse::<usize>().unwrap())) {
                 process.kill();
             }
-            _ => (),
-        }
-    });
+        },
+        _ => (),
+    }
     std::thread::sleep(std::time::Duration::from_millis(50));
-    sys.refresh_all();
+    let current_exe_path = std::env::current_exe().unwrap();
     sys.processes()
         .iter()
         .for_each(|(_pid, process)| match process.exe() {
             v if v.starts_with(path.as_ref()) && v != current_exe_path => {
+                Log::info(format!("再次尝试结束进程 {v:?} {process:#?}").as_str());
                 process.kill();
             }
             _ => (),

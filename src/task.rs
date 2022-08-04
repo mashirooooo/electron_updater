@@ -80,16 +80,20 @@ fn check_permission<P: AsRef<Path>>(
                 false
                 // 创建父文件夹失败处理
             } else if file_path.exists() {
-                if fs::rename(&file_path, &to_path).is_ok() {
-                    running_config
-                        .file_path
-                        .insert(index, file_path.to_str().unwrap().to_owned());
-                    move_target.push((file_path, to_path));
-                    true
-                } else {
-                    Log::error("rename文件失败");
-                    Log::error(file_path.to_str().unwrap());
-                    false
+                match fs::rename(&file_path, &to_path) {
+                    Ok(_) => {
+                        running_config
+                            .file_path
+                            .insert(index, file_path.to_str().unwrap().to_owned());
+                        move_target.push((file_path, to_path));
+                        true
+                    }
+                    Err(e) => {
+                        Log::error("rename文件失败");
+                        Log::error(file_path.to_str().unwrap());
+                        Log::error(e.to_string().as_str());
+                        false
+                    }
                 }
             } else {
                 true
@@ -332,7 +336,7 @@ pub fn run_task(quit_app_fn: impl FnOnce(), #[cfg(feature = "druid")] ui_callbac
     Log::setup_logging();
     Log::info("程序开始");
     // 当前执行exe的 没传过来直接结束进程
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    std::thread::sleep(std::time::Duration::from_millis(500));
     Log::info("获取electron程序的执行目录,判断任务状态");
     let running_config_path = Path::new(".running_status");
 
