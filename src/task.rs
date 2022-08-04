@@ -283,6 +283,8 @@ fn update(
     Log::info(format!("{config:#?}").as_str());
     Log::info("开始更新");
     Log::info("处理未关闭的electron进程");
+    // 处理未关闭的exe进程
+    end_electron_main(&path);
     if !skip_check {
         {
             if !check_permission(
@@ -303,10 +305,6 @@ fn update(
         flush_config_file(&mut running_config_file, &running_config);
     }
 
-    // 处理未关闭的exe进程
-    if !config.added.is_empty() || !config.changed.is_empty() {
-        end_electron_main(&path);
-    }
     Log::info("迁移文件");
     // 复制文件
     if !copy_file(
