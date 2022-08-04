@@ -17,7 +17,8 @@ pub fn end_electron_main<P: AsRef<Path>>(path: P) -> bool {
     let mut sys = sysinfo::System::new_all();
     match env::var("exe_pid") {
         Ok(pid) if pid.parse::<usize>().is_ok() => {
-            if let Some(process) = sys.process(Pid::from(pid.parse::<usize>().unwrap())) {
+            let pid = pid.parse::<usize>().unwrap();
+            if let Some(process) = sys.process(Pid::from(pid)) {
                 process.kill();
             }
         }
